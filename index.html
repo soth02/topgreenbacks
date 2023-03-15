@@ -9,86 +9,111 @@
             display: inline-block;
             border: 1px solid black;
             padding: 10px;
+            width: 60px; /* Add fixed width */
+            height: 180px; /* Add fixed height */
         }
         .symbol {
             display: block;
             text-align: center;
             font-size: 24px;
+            line-height: 60px; /* Add line-height equal to the height of the symbol */
         }
         .middle {
             border-top: 1px solid red;
             border-bottom: 1px solid red;
         }
+        #winning-message {
+            min-height: 1.5em;
+            text-align: center; /* Center the winning message */
+            font-weight: bold; /* Make the text bold */
+            color: green; /* Set the text color to green */
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #scoreboard, #spin {
+            margin-top: 20px;
+        }
+        #ascii-title {
+            text-align: center;
+            margin-bottom: -10px;
+        }
+    
+        /* Responsive styles */
+        @media screen and (max-width: 767px) {
+            .symbol {
+                font-size: 18px; /* Decrease font size on smaller screens */
+                line-height: 40px; /* Adjust line-height for smaller screens */
+            }
+            .middle {
+                border-width: 1px; /* Thinner borders for smaller screens */
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .symbol {
+                font-size: 14px; /* Decrease font size further on very small screens */
+                line-height: 30px; /* Adjust line-height for smaller screens */
+            }
+        }
     </style>
+    
+    
+    
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <div id="ascii-title">
+        <pre>
+
+            ___________             ________         .__  .__          
+            \__    ___/___ ______   \______ \   ____ |  | |  | _____   
+              |    | /  _ \\____ \   |    |  \ /  _ \|  | |  | \__  \  
+              |    |(  <_> )  |_> >  |    `   (  <_> )  |_|  |__/ __ \_
+              |____| \____/|   __/  /_______  /\____/|____/____(____  /
+                           |__|             \/                      \/ 
+            
+        </pre>
+    </div>
+
+    <div class="main-container">
     <div class="slot-machine">
         <div class="reel">
-            <pre>
-            .------.
-           /        \
-          /    /\    \
-         /    /  \    \
-        |____|____|____|
-        |    |    |    |
-        |    |    |    |
-        |____|____|____|
-         \    \__/    /
-          \          /
-           \________/
-            </pre>
             <span class="symbol"></span>
             <span class="symbol middle"></span>
             <span class="symbol"></span>
         </div>
         <div class="reel">
-            <pre>
-            .------.
-           /        \
-          /    /\    \
-         /    /  \    \
-        |____|____|____|
-        |    |    |    |
-        |    |    |    |
-        |____|____|____|
-         \    \__/    /
-          \          /
-           \________/
-            </pre>
             <span class="symbol"></span>
             <span class="symbol middle"></span>
             <span class="symbol"></span>
         </div>
         <div class="reel">
-            <pre>
-            .------.
-           /        \
-          /    /\    \
-         /    /  \    \
-        |____|____|____|
-        |    |    |    |
-        |    |    |    |
-        |____|____|____|
-         \    \__/    /
-          \          /
-           \________/
-            </pre>
             <span class="symbol"></span>
             <span class="symbol middle"></span>
             <span class="symbol"></span>
         </div>
+        <div id="winning-message"></div>
+
+        
     </div>
 
     <div id="scoreboard">Current balance: $<span id="balance">1000</span></div>
 
     <button id="spin">Spin</button>
+    </div>
+</body>
 
     <script>
-        const symbols = ['🍒', '🍋', '🍫', '🍀'];
+        const symbols = ['🍒', '🍋', '🍋', '🍋', '🍫', '🍫', '🍫', '🍀', '🍀', '🍀'];
         const dollar = '💰';
 
-        function spinReels() {
+        function spinReels(callback) {
+    clearWinningMessage();
     let shouldShowDollar = Math.random() < 1 / 20;
 
     $('.reel').each(function (index, reel) {
@@ -101,8 +126,26 @@
         });
     });
 
-    checkForDollar();
+    // Call checkWinning before checkForDollar
+    checkWinning();
+
+    // Call the callback function (checkForDollar) after updating the symbols
+    if (typeof callback === 'function') {
+        callback();
+    }
 }
+
+
+
+
+function displayWinningMessage(amount) {
+    $('#winning-message').text(`You won $${amount} on this spin!`);
+}
+
+function clearWinningMessage() {
+    $('#winning-message').text('');
+}
+
 
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -114,7 +157,7 @@ function delay(ms) {
         }
 
         async function checkForDollar() {
-    const middleSymbol = $('.reel:last-child .middle').text();
+    const middleSymbol = $('.reel:last .symbol.middle').text();
     if (middleSymbol === dollar) {
         await delay(500);
         startMiniGame();
@@ -122,7 +165,7 @@ function delay(ms) {
 }
 
 
-        function startMiniGame() {
+function startMiniGame() {
     let offers = generateOffers(4);
     let offerIndex = 0;
 
@@ -135,6 +178,7 @@ function delay(ms) {
 
             if (decision) {
                 updateBalance(currentOffer);
+                displayWinningMessage(currentOffer); // Update the winning message
                 alert(`Congratulations! You've accepted the offer of $${currentOffer}!`);
             } else {
                 offerIndex++;
@@ -143,12 +187,14 @@ function delay(ms) {
         } else {
             let lastOffer = offers[offerIndex - 1];
             updateBalance(lastOffer);
+            displayWinningMessage(lastOffer); // Update the winning message
             alert(`You've reached the last offer. You've been awarded $${lastOffer}.`);
         }
     }
 
     showOffer();
 }
+
 
 function generateOffers(numberOfOffers) {
     let offers = [];
@@ -168,13 +214,14 @@ function updateBalance(amount) {
 }
 
 function checkWinning() {
+    clearWinningMessage();
     const middleSymbols = $('.middle').map(function () {
         return $(this).text();
     }).get();
 
     if (middleSymbols[0] === middleSymbols[1] && middleSymbols[1] === middleSymbols[2]) {
         updateBalance(100);
-        alert('Congratulations! You won $100!');
+        displayWinningMessage(100);
     } else {
         let cherryCount = 0;
         middleSymbols.forEach(function (symbol) {
@@ -185,16 +232,18 @@ function checkWinning() {
         if (cherryCount > 0) {
             const cherryWinAmount = cherryCount * 25;
             updateBalance(cherryWinAmount);
-            alert(`You have ${cherryCount} cherry/cherries on the middle row! You won $${cherryWinAmount}!`);
+            displayWinningMessage(cherryWinAmount);
         }
     }
 }
 
 
+
+
 $('#spin').on('click', function () {
     if (balance >= 25) {
         updateBalance(-25);
-        spinReels();
+        spinReels(checkForDollar); // Pass checkForDollar as a callback
     } else {
         alert('Insufficient funds! You need at least $25 to spin.');
     }
