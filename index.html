@@ -40,25 +40,31 @@
         }
         #ascii-title {
             text-align: center;
-            margin-bottom: -10px;
+            margin-bottom: -500px;
         }
     
         /* Responsive styles */
         @media screen and (max-width: 767px) {
-            .symbol {
-                font-size: 18px; /* Decrease font size on smaller screens */
-                line-height: 40px; /* Adjust line-height for smaller screens */
-            }
-            .middle {
-                border-width: 1px; /* Thinner borders for smaller screens */
-            }
+        .symbol {
+            font-size: 18px; /* Decrease font size on smaller screens */
+            line-height: 40px; /* Adjust line-height for smaller screens */
         }
-        @media screen and (max-width: 480px) {
-            .symbol {
-                font-size: 14px; /* Decrease font size further on very small screens */
-                line-height: 30px; /* Adjust line-height for smaller screens */
-            }
+        .reel {
+            height: 120px; /* Adjust the height of the reel on smaller screens */
         }
+        .middle {
+            border-width: 1px; /* Thinner borders for smaller screens */
+        }
+    }
+    @media screen and (max-width: 480px) {
+        .symbol {
+            font-size: 14px; /* Decrease font size further on very small screens */
+            line-height: 30px; /* Adjust line-height for smaller screens */
+        }
+        .reel {
+            height: 90px; /* Adjust the height of the reel on very small screens */
+        }
+    }
     </style>
     
     
