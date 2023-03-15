@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Dollar Slot Machine</title>
+    <style>
+        .reel {
+            display: inline-block;
+            border: 1px solid black;
+            padding: 10px;
+        }
+        .symbol {
+            display: block;
+            text-align: center;
+            font-size: 24px;
+        }
+        .middle {
+            border-top: 1px solid red;
+            border-bottom: 1px solid red;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="slot-machine">
+        <div class="reel">
+            <pre>
+            .------.
+           /        \
+          /    /\    \
+         /    /  \    \
+        |____|____|____|
+        |    |    |    |
+        |    |    |    |
+        |____|____|____|
+         \    \__/    /
+          \          /
+           \________/
+            </pre>
+            <span class="symbol"></span>
+            <span class="symbol middle"></span>
+            <span class="symbol"></span>
+        </div>
+        <div class="reel">
+            <pre>
+            .------.
+           /        \
+          /    /\    \
+         /    /  \    \
+        |____|____|____|
+        |    |    |    |
+        |    |    |    |
+        |____|____|____|
+         \    \__/    /
+          \          /
+           \________/
+            </pre>
+            <span class="symbol"></span>
+            <span class="symbol middle"></span>
+            <span class="symbol"></span>
+        </div>
+        <div class="reel">
+            <pre>
+            .------.
+           /        \
+          /    /\    \
+         /    /  \    \
+        |____|____|____|
+        |    |    |    |
+        |    |    |    |
+        |____|____|____|
+         \    \__/    /
+          \          /
+           \________/
+            </pre>
+            <span class="symbol"></span>
+            <span class="symbol middle"></span>
+            <span class="symbol"></span>
+        </div>
+    </div>
+
+    <div id="scoreboard">Current balance: $<span id="balance">1000</span></div>
+
+    <button id="spin">Spin</button>
+
+    <script>
+        const symbols = ['🍒', '🍋', '🍫', '🍀'];
+        const dollar = '💰';
+
+        function spinReels() {
+    let shouldShowDollar = Math.random() < 1 / 20;
+
+    $('.reel').each(function (index, reel) {
+        $(reel).find('.symbol').each(function (symbolIndex, symbol) {
+            if (index === 2 && symbolIndex === 1 && shouldShowDollar) {
+                $(symbol).text(dollar);
+            } else {
+                $(symbol).text(getRandomSymbol());
+            }
+        });
+    });
+
+    checkForDollar();
+}
+
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+
+        function getRandomSymbol() {
+            return symbols[Math.floor(Math.random() * symbols.length)];
+        }
+
+        async function checkForDollar() {
+    const middleSymbol = $('.reel:last-child .middle').text();
+    if (middleSymbol === dollar) {
+        await delay(500);
+        startMiniGame();
+    }
+}
+
+
+        function startMiniGame() {
+    let offers = generateOffers(4);
+    let offerIndex = 0;
+
+    function showOffer() {
+        if (offerIndex < offers.length) {
+            let currentOffer = offers[offerIndex];
+            let message = `Offer ${offerIndex + 1} of 4: $${currentOffer}\n\n` +
+                `Do you want to take this offer or move on to the next offer?`;
+            let decision = confirm(message);
+
+            if (decision) {
+                updateBalance(currentOffer);
+                alert(`Congratulations! You've accepted the offer of $${currentOffer}!`);
+            } else {
+                offerIndex++;
+                showOffer();
+            }
+        } else {
+            let lastOffer = offers[offerIndex - 1];
+            updateBalance(lastOffer);
+            alert(`You've reached the last offer. You've been awarded $${lastOffer}.`);
+        }
+    }
+
+    showOffer();
+}
+
+function generateOffers(numberOfOffers) {
+    let offers = [];
+    for (let i = 0; i < numberOfOffers; i++) {
+        let randomOffer = Math.floor(Math.random() * 33 + 8) * 25;
+        offers.push(randomOffer);
+    }
+    return offers;
+}
+
+
+    let balance = 1000;
+
+function updateBalance(amount) {
+    balance += amount;
+    $('#balance').text(balance);
+}
+
+function checkWinning() {
+    const middleSymbols = $('.middle').map(function () {
+        return $(this).text();
+    }).get();
+
+    if (middleSymbols[0] === middleSymbols[1] && middleSymbols[1] === middleSymbols[2]) {
+        updateBalance(100);
+        alert('Congratulations! You won $100!');
+    } else {
+        let cherryCount = 0;
+        middleSymbols.forEach(function (symbol) {
+            if (symbol === '🍒') {
+                cherryCount++;
+            }
+        });
+        if (cherryCount > 0) {
+            const cherryWinAmount = cherryCount * 25;
+            updateBalance(cherryWinAmount);
+            alert(`You have ${cherryCount} cherry/cherries on the middle row! You won $${cherryWinAmount}!`);
+        }
+    }
+}
+
+
+$('#spin').on('click', function () {
+    if (balance >= 25) {
+        updateBalance(-25);
+        spinReels();
+    } else {
+        alert('Insufficient funds! You need at least $25 to spin.');
+    }
+});
+
+</script>
